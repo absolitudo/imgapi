@@ -1,5 +1,6 @@
 require('dotenv').config();
-var express = require("express"),
+var Bing = require('node-bing-api')({ accKey: process.env.API_KEY}),
+    express = require("express"),
     app = express(),
     mongoose = require("mongoose"),
     querySchema = new mongoose.Schema({
@@ -29,8 +30,21 @@ app.get("/api/imagesearch/:term", function(req, res) {
     }).save(function(err) {
         if(err) throw err;
     });
-
-    // make the actual search and display the results
+    var myResponse = [];
+    Bing.images(req.params.term, {
+        top: 10,
+        skip: req.query.offset || 0
+    }, function(error, response, body){
+            body.value.forEach(function(img) {
+                myResponse.push({
+                    url: img.contentUrl,
+                    snippet: img.name,
+                    thumbnail: img.thumbnailUrl,
+                    context: img.hostPageDisplayUrl
+                });
+            });
+            res.send(myResponse);
+    });
 });
 app.listen(process.env.PORT || 8080);
 console.log("server up");
