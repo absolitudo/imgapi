@@ -1,4 +1,3 @@
-require('dotenv').config();
 var Bing = require('node-bing-api')({ accKey: process.env.API_KEY}),
     express = require("express"),
     app = express(),
